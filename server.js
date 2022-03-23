@@ -37,6 +37,10 @@ app.use('/dict', dictRouter);
 app.use('/artists', artistsRouter);
 app.use('/series', seriesRouter);
 
+app.get('/', (req, res) => {
+    res.send('APP IS RUNNING')
+});
+
 app.listen(5000, () => {
     console.debug('App listening on :5000');
 });
