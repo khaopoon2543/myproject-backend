@@ -23,38 +23,40 @@ function PosToEng(pos) {
 }
 
 function VerbEng(poses)  {
-        let pos4 = poses[4].split('-')
-        if (['上一段','下一段'].includes(pos4[0])) {
-            const pos = 'v1'; return pos
-        }else if (pos4[0] === '五段') {
-            const pos = 'v5'; return pos
-        }else if (pos4[0] === 'カ行変格') {
-            const pos = 'vk'; return pos
-        }else if (pos4[0] === 'サ行変格') {
-            const pos = 'vs'; return pos
-        }else if (pos4[0] === 'ザ行変格') {
-            const pos = 'vz'; return pos
-        }else {
-            return poses
-        }
+    let pos4 = poses[4].split('-')
+    if (['上一段','下一段'].includes(pos4[0])) {
+        const pos = 'v1'; return pos
+    }else if (pos4[0] === '五段') {
+        const pos = 'v5'; return pos
+    }else if (pos4[0] === 'カ行変格') {
+        const pos = 'vk'; return pos
+    }else if (pos4[0] === 'サ行変格') {
+        const pos = 'vs'; return pos
+    }else if (pos4[0] === 'ザ行変格') {
+        const pos = 'vz'; return pos
+    }else {
+        return poses
+    }
 }
 
 function ResultPOS(poses) {
     if (poses[0] === '動詞') {
-        return VerbEng(poses)
+        return [VerbEng(poses)]
+    }else if (poses[0] === '名詞' && poses[2] === '副詞可能') {
+        return ['n-t','n-adv','n']
     }
-        return PosToEng(poses[0])
+        return [PosToEng(poses[0])]
     
 }
 
 function CheckV5(result) {
-    if (result === 'v5') {
-        console.log(result)
+    if (result.includes('v5')) {
+        //console.log(result)
         const SearchType = { $in: [/v5/] }
         return SearchType
     }else {
         //console.log(result)
-        const SearchType = { $in: [result] }
+        const SearchType = { $in: result } //[result] 
         return SearchType
     }
 }

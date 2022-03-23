@@ -17,7 +17,9 @@ app.use(bodyParser.json())
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header('Access-Control-Allow-Credentials', true); 
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     next();
 })
 
@@ -26,14 +28,14 @@ const resultsearchRouter = require('./routes/resultsearch');
 const lyricRouter = require('./routes/lyrics');
 const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
-const pythonRouter = require('./routes/python');
+const seriesRouter = require('./routes/series');
 
 app.use('/', spotifyRouter);
 app.use('/lyric', lyricRouter);
 app.use('/result', resultsearchRouter);
 app.use('/dict', dictRouter);
 app.use('/artists', artistsRouter);
-app.use('/python', pythonRouter);
+app.use('/series', seriesRouter);
 
 app.listen(5000, () => {
     console.debug('App listening on :5000');
