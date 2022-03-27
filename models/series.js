@@ -5,7 +5,7 @@ const seriesSchema = new Schema({
   alphabet: String,
   name: String,
   type: String,
-  serie_id: String //key
+  series_id: String //key
 },
   { collection : 'series' }
 )

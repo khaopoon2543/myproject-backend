@@ -9,7 +9,7 @@ const songsSchema = new Schema({
   artist_id: String,
   song_id: String,
   singer: String,
-  serie: {String} // {id, theme} || {name}
+  series: {id:String, theme:String, name: String} // {id, theme} || {name}
 },
   { collection : 'songs' }
 )
