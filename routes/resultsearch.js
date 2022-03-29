@@ -131,6 +131,32 @@ function filterSeriesName(searchTerm) { //Collection 'series' (by name in 'serie
                     }
         }
     ]}
+    
+function checkLevel(level) {
+    if (level==="very-difficult") {
+        return {min:0.5, max:1.49}
+    } else if (level==='difficult') {
+        return {min:1.5, max:2.49}
+    } else if (level==='slightly-difficult') {
+        return {min:2.5, max:3.49}
+    } else if (level==='so-so') {
+        return {min:3.5, max:4.49}
+    } else if (level==='easy') {
+        return {min:4.5, max:5.49}
+    }
+    return {min:5.5, max:6.49}
+  }
+function filterLevels(level) { 
+    min_score = checkLevel(level).min
+    max_score = checkLevel(level).max
+    return [
+        { $set: 
+            { readability_score: { $toDouble: '$readability_score' }}
+        },
+        { $match: 
+            {readability_score: { $gt: min_score, $lt: max_score }}
+        }
+    ]}
 
 app.get('/', async function(req, res) {
     try {
@@ -175,7 +201,7 @@ app.get('/', async function(req, res) {
             }
         } else if (filter==='show' && level) {
             console.log(level)
-            const song_list = await Songs.find({})
+            const song_list = await Songs.aggregate( filterLevels(level) )
             res.status(200).send(song_list)
         } else {
             console.log(filter)
