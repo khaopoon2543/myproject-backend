@@ -54,7 +54,9 @@ function filterSong(searchTerm) {
     return {
         $or: [ 
             {name: { $regex : searchTerm, $options: 'i' }},
-            {song_id: { $regex : searchTerm, $options: 'i' }}
+            {song_id: { $regex : searchTerm, $options: 'i' }},
+            {name: searchTerm },
+            {song_id: searchTerm }
         ]       
     }}
 function filterArtist(searchTerm) {
