@@ -62,9 +62,17 @@ function filterSong(searchTerm) {
 function filterArtist(searchTerm) {
     return {
         $or: [ 
+            {artist: searchTerm },
+            {artist_id: searchTerm },
+            {singer: searchTerm },
             {artist: { $regex : searchTerm, $options: 'i' }},
             {artist_id: { $regex : searchTerm, $options: 'i' }},
-            {singer: { $regex : searchTerm, $options: 'i'}},
+            {singer: { $regex : searchTerm, $options: 'i'}}
+        ]       
+    }}
+function filterArtistId(searchTerm) {
+    return {
+        $or: [ 
             {artist: searchTerm },
             {artist_id: searchTerm },
             {singer: searchTerm }
@@ -166,8 +174,9 @@ app.get('/', async function(req, res) {
         let searchArtist = req.query.searchArtist;
         let filter = req.query.filter;
         let level = req.query.level;
+        let subArtists = req.query.subArtists;
+        
         console.log('Connected'+ searchTerm)
-        console.log('Connected'+ searchArtist)
         console.log(filter)
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
@@ -184,14 +193,16 @@ app.get('/', async function(req, res) {
             console.log(filter)
             const song_list = await Songs.find( filterSong(searchTerm) )
             res.status(200).send(song_list)
-        } else if (filter==='artist' && searchTerm) {
+        
+        } else if (filter==='artist' && subArtists) {
+            console.log(filter, subArtists)
+            const song_list = await Songs.find( filterArtistId(searchTerm) )
+            res.status(200).send(song_list)
+        } else if (filter==='artist' && !subArtists && searchTerm) {
             console.log(filter)
             const song_list = await Songs.find( filterArtist(searchTerm) )
             res.status(200).send(song_list)
-        } else if (filter==='lyric' && searchTerm) {
-            console.log(filter)
-            const song_list = await Songs.aggregate( filterLyric(searchTerm) )
-            res.status(200).send(song_list)
+        
         } else if (filter==='series' && searchTerm) {
             console.log(filter)
             const song_list = await Songs.aggregate( filterSeriesId(searchTerm) )
@@ -201,6 +212,11 @@ app.get('/', async function(req, res) {
             } else {
                 res.status(200).send(song_list)
             }
+        
+        } else if (filter==='lyric' && searchTerm) {
+            console.log(filter)
+            const song_list = await Songs.aggregate( filterLyric(searchTerm) )
+            res.status(200).send(song_list)
         } else if (filter==='show' && level) {
             console.log(level)
             const song_list = await Songs.aggregate( filterLevels(level) )
