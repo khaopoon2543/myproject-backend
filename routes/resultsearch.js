@@ -84,6 +84,7 @@ function filterLyric(searchTerm) {
             { lyric: { $regex : searchTerm, $options: 'i' } }    
         }]
     }
+
 function filterSeriesId(searchTerm) { //Collection 'songs' (by series.id||series.name in 'songs')
     return [
         { $unwind: "$series" },

@@ -17,6 +17,8 @@ function PosToEng(pos) {
         const pos = 'conj'; return pos
     }else if (pos === '感動詞') {
         const pos = 'int'; return pos
+    }else if (pos === '接尾辞') {
+        const pos = 'suf'; return pos
     }else{
         return pos
     }  
@@ -44,6 +46,10 @@ function ResultPOS(poses) {
         return [VerbEng(poses)]
     }else if (poses[0] === '名詞' && poses[2] === '副詞可能') {
         return ['n-t','n-adv','n']
+    }else if (poses[0] === '名詞' && poses[1] === '数詞') {
+        return ['n','num']
+    }else if (poses[0] === '形容詞' && poses[1] === '非自立可能' && ['連体形'].includes(poses[5].split('-')[0])) {
+        return ['adj-pn']
     }
         return [PosToEng(poses[0])]
     
@@ -65,20 +71,24 @@ app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, re
     try {
         let dic_form = req.query.dic_form;
         let poses = req.query.poses;
+        let read_form = req.query.read_form;
+
 
         const result = ResultPOS(poses)
         
         const SearchType = CheckV5(result)
-        const dict_Kanji = await JTdic.find({ Kanji: dic_form, Type: SearchType })
-        //console.log(dic_form)
+        const dict_list = await JTdic.find({ $and: [{$or: [{Kanji: dic_form},{Yomikata: dic_form}]} , {Type: SearchType}] })
         
-        if (dict_Kanji.length > 0) {
-            const dict_list = dict_Kanji
-            res.status(200).send(dict_list)
-        }else {
-            const dict_Yomikata = await JTdic.find({ Yomikata:dic_form , Type: SearchType })
-            const dict_list = dict_Yomikata
-            res.status(200).send(dict_list)
+        if (dict_list.length===0) {
+            const dict_list = await JTdic.find({ Yomikata: dic_form , Type: SearchType })
+            if (dict_list.length===0) {
+                const dict_list = await JTdic.find({ Yomikata: read_form , Type: SearchType })
+                res.status(200).send(dict_list) //search in Yomikata (read_form)
+            } else {
+                res.status(200).send(dict_list) //search in Yomikata (dic_form)
+            }
+        } else {
+            res.status(200).send(dict_list) //search in Kanji
         }
 
     } catch (err) {
