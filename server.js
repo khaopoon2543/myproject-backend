@@ -24,15 +24,13 @@ app.use((req, res, next) => {
 })
 
 const spotifyRouter = require('./routes/spotify');
-const resultsearchRouter = require('./routes/resultsearch');
-const lyricRouter = require('./routes/kuromoji');
+const resultSearchRouter = require('./routes/resultSearch');
 const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
 const seriesRouter = require('./routes/series');
 
 app.use('/', spotifyRouter);
-app.use('/lyric', lyricRouter);
-app.use('/result', resultsearchRouter);
+app.use('/result', resultSearchRouter);
 app.use('/dict', dictRouter);
 app.use('/artists', artistsRouter);
 app.use('/series', seriesRouter);
