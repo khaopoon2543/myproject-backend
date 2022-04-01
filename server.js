@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 })
 
 const spotifyRouter = require('./routes/spotify');
-const resultSearchRouter = require('./routes/resultSearch');
+const resultSearchRouter = require('./routes/result-search');
 const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
 const seriesRouter = require('./routes/series');
