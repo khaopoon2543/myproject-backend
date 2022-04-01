@@ -142,6 +142,13 @@ function filterSeriesName(searchTerm) { //Collection 'series' (by name in 'serie
                     }
         }
     ]}
+function filterSeries(seriesID) { //Collection 'series' (by series_id in 'series')
+    return [
+        { $match: {series_id: seriesID }},
+        { $project: {
+            series_info: { name:"$name", type:"$type" }
+        }}
+    ]}
     
 function checkLevel(level) {
     if (level==="very-difficult") {
@@ -169,6 +176,29 @@ function filterLevels(level) {
         }
     ]}
 
+async function findSeries(song_list, res) {
+    if (song_list.length > 0) {
+        let count = 0; let songArray = [];
+        for (i in song_list) {
+            let seriesID = song_list[i].series.id
+            if (seriesID) {
+                let seriesInfo = await Series.aggregate( filterSeries(seriesID) )
+                let series_info = seriesInfo.length>0 && seriesInfo[0].series_info
+                song_info = JSON.parse(JSON.stringify(song_list[i])); //T__T やったああ
+                song_info.series_info = series_info 
+                songArray.push(song_info)
+            } else { songArray.push(song_list[i]) } 
+            count ++; if (count===song_list.length) {
+                res.status(200).send(songArray)
+            }
+        }
+    } else {
+        res.status(200).send(song_list)
+    }
+}
+
+const select = { "lyric": 0 }
+
 app.get('/', async function(req, res) {
     try {
         let searchTerm = req.query.searchTerm;
@@ -182,27 +212,28 @@ app.get('/', async function(req, res) {
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
             console.log(filter)
-            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) )
+            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).select(select)
             if (song_list.length==0) {
-                const song_list = await Songs.find( spotifyArtists(searchArtist) )
-                res.status(200).send(song_list)
+                const song_list = await Songs.find( spotifyArtists(searchArtist) ).select(select)
+                findSeries(song_list, res)
             } else {
-                res.status(200).send(song_list)
+                findSeries(song_list, res)
             }
 
         } else if (filter==='song' && searchTerm) {
             console.log(filter)
-            const song_list = await Songs.find( filterSong(searchTerm) )
-            res.status(200).send(song_list)
+            const song_list = await Songs.find( filterSong(searchTerm) ).select(select)
+            findSeries(song_list, res)
         
         } else if (filter==='artist' && subArtists) {
             console.log(filter, subArtists)
-            const song_list = await Songs.find( filterArtistId(searchTerm) )
-            res.status(200).send(song_list)
+            const song_list = await Songs.find(filterArtistId(searchTerm)).select(select)
+            findSeries(song_list, res)
+                                   
         } else if (filter==='artist' && !subArtists && searchTerm) {
             console.log(filter)
-            const song_list = await Songs.find( filterArtist(searchTerm) )
-            res.status(200).send(song_list)
+            const song_list = await Songs.find( filterArtist(searchTerm) ).select(select)
+            findSeries(song_list, res)
         
         } else if (filter==='series' && searchTerm) {
             console.log(filter)
@@ -220,12 +251,12 @@ app.get('/', async function(req, res) {
             res.status(200).send(song_list)
         } else if (filter==='show' && level) {
             console.log(level)
-            const song_list = await Songs.aggregate( filterLevels(level) )
-            res.status(200).send(song_list)
+            const song_list = await Songs.aggregate( filterLevels(level) ).select(select)
+            findSeries(song_list, res)
         } else {
             console.log(filter)
-            const song_list = await Songs.find( filterAll(searchTerm) )
-            res.status(200).send(song_list)
+            const song_list = await Songs.find( filterAll(searchTerm) ).select(select)
+            findSeries(song_list, res)
         }
         
     } catch (err) {

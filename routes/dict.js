@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const JTdic = require('../models/jtdic');
+const wanakana = require('wanakana');
 
 function PosToEng(pos) {
     if (pos === '名詞') {
@@ -9,19 +10,13 @@ function PosToEng(pos) {
         const pos = 'adj-i'; return pos
     }else if (pos === '形状詞') { //形容動詞
         const pos = 'adj-na'; return pos
-    }else if (pos === '連体詞') {
-        const pos = 'adj-pn'; return pos
     }else if (pos === '副詞') {
         const pos = 'adv'; return pos
     }else if (pos === '接続詞') {
         const pos = 'conj'; return pos
     }else if (pos === '感動詞') {
         const pos = 'int'; return pos
-    }else if (pos === '接尾辞') {
-        const pos = 'suf'; return pos
-    }else{
-        return pos
-    }  
+    }
 }
 
 function VerbEng(poses)  {
@@ -33,11 +28,9 @@ function VerbEng(poses)  {
     }else if (pos4[0] === 'カ行変格') {
         const pos = 'vk'; return pos
     }else if (pos4[0] === 'サ行変格') {
-        const pos = 'vs'; return pos
+        return 'vs','vs-s';
     }else if (pos4[0] === 'ザ行変格') {
         const pos = 'vz'; return pos
-    }else {
-        return poses
     }
 }
 
@@ -49,8 +42,18 @@ function ResultPOS(poses) {
     }else if (poses[0] === '名詞' && poses[1] === '数詞') {
         return ['n','num']
     }else if (poses[0] === '形容詞' && poses[1] === '非自立可能' && ['連体形'].includes(poses[5].split('-')[0])) {
-        return ['adj-pn']
-    }
+        return ['adj-pn','adj-f'] //なき (廻廻奇譚)
+    }else if (poses[0] === '接尾辞' && poses[1] === '形容詞的') { //aux-adj => auxiliary adjective 
+        return ['aux-adj']
+    }else if (poses[0] === '形状詞' && poses[1] === '助動詞語幹') {
+        return ['aux-adj'] 
+    //}else if (poses[0] === '接頭辞') {
+        //return ['pref', 'n-pref'] //, 'n-pref'
+    //}else if (poses[0] === '接尾辞') {
+        //return ['suf', 'n-suf'] //, 'n-suf'
+    }else if (poses[0] === '連体詞') {
+        return ['adj-pn','adj-f'];
+    } 
         return [PosToEng(poses[0])]
     
 }
@@ -72,25 +75,39 @@ app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, re
         let dic_form = req.query.dic_form;
         let poses = req.query.poses;
         let read_form = req.query.read_form;
-
+        if (wanakana.isJapanese(dic_form)!==true) {
+            res.status(200).send(null)  
+        }
+        let toKana_dic_form = wanakana.toHiragana(dic_form);
 
         const result = ResultPOS(poses)
-        
         const SearchType = CheckV5(result)
-        const dict_list = await JTdic.find({ $and: [{$or: [{Kanji: dic_form},{Yomikata: dic_form}]} , {Type: SearchType}] })
-        
-        if (dict_list.length===0) {
-            const dict_list = await JTdic.find({ Yomikata: dic_form , Type: SearchType })
-            if (dict_list.length===0) {
-                const dict_list = await JTdic.find({ Yomikata: read_form , Type: SearchType })
-                res.status(200).send(dict_list) //search in Yomikata (read_form)
-            } else {
-                res.status(200).send(dict_list) //search in Yomikata (dic_form)
-            }
-        } else {
-            res.status(200).send(dict_list) //search in Kanji
-        }
 
+        const dict_list = await JTdic.find({
+            $and: [
+                {Kanji: dic_form},
+                {Yomikata: read_form},                 
+                {Type: SearchType}
+            ] 
+        })
+
+        if (dict_list.length > 0) {
+            res.status(200).send(dict_list) 
+        } else {
+            const dict_list = await JTdic.find({
+                $and: [
+                    {$or: [
+                        {Kanji: dic_form},
+                        {Yomikata: dic_form}, 
+                        {Yomikata: read_form},
+                        {Yomikata: toKana_dic_form}
+                    ]}, 
+                    {Type: SearchType}
+                ] 
+            })
+            res.status(200).send(dict_list)  
+        }
+       
     } catch (err) {
         res.status(400).send(err)
     }   
