@@ -4,7 +4,6 @@ require('dotenv').config();
 const SpotifyWebApi = require('spotify-web-api-node');
 scopes = ['user-read-private','user-read-currently-playing']
 
-
 const spotifyApi = new SpotifyWebApi({
   frontendUri: process.env.FRONTEND_URL,
   redirectUri: process.env.REDIRECT_URL,
@@ -36,6 +35,47 @@ app.get('/callback', async (req,res) => {
 });
 
 /* ----------------------------------------------------------------------------------------------------------- */
+
+function collectedTrack(trackList, res) {
+      let trackArray = []
+      for (i in trackList) {
+          let trackInfo = {}
+          trackInfo.img = trackList[i].album.images[0].url
+          trackInfo.artist = trackList[i].artists[0].name
+          trackInfo.name = trackList[i].name
+          trackInfo.url = trackList[i].external_urls.spotify
+          trackArray.push(trackInfo)
+      }
+      res.status(200).send(trackArray)
+}
+
+app.get('/searchTrack/:trackArtistId/:trackArtist/:trackName', async (req,res) => {
+  const trackArtistId = req.params.trackArtistId;
+  const trackArtist = req.params.trackArtist;
+  const trackName = req.params.trackName;
+  try {
+    const result = await spotifyApi.searchTracks('track:'+ trackName + ' artist:' + trackArtistId) //query artist EN
+    const trackList = result.body.tracks.items
+
+    if (trackList.length > 0) {
+      collectedTrack(trackList,res)
+    } else {
+      const result = await spotifyApi.searchTracks('track:'+ trackName + ' artist:' + trackArtist) //query artist JP
+      const trackList = result.body.tracks.items
+
+      if (trackList.length > 0) {
+        collectedTrack(trackList,res)
+      } else {
+        const result = await spotifyApi.searchTracks(trackName) //query only track name
+        const trackList = result.body.tracks.items
+        collectedTrack(trackList,res)
+      }
+    }
+
+  } catch (err) {
+    res.status(400).send(err)
+  }
+});
 
 app.get('/home', async (req,res) => {
     try {

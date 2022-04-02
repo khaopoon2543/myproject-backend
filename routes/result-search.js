@@ -178,20 +178,25 @@ function filterLevels(level) {
 
 async function findSeries(song_list, res) {
     if (song_list.length > 0) {
-        let count = 0; let songArray = [];
-        for (i in song_list) {
-            let seriesID = song_list[i].series.id
-            if (seriesID) {
-                let seriesInfo = await Series.aggregate( filterSeries(seriesID) )
-                let series_info = seriesInfo.length>0 && seriesInfo[0].series_info
-                song_info = JSON.parse(JSON.stringify(song_list[i])); //T__T やったああ
-                song_info.series_info = series_info 
-                songArray.push(song_info)
-            } else { songArray.push(song_list[i]) } 
-            count ++; if (count===song_list.length) {
-                res.status(200).send(songArray)
+        try{
+            let count = 0; let songArray = [];
+            for (i in song_list) {
+                let seriesID = song_list[i].series.id
+                if (seriesID) {
+                    let seriesInfo = await Series.aggregate( filterSeries(seriesID) )
+                    let series_info = seriesInfo.length>0 && seriesInfo[0].series_info
+                    song_info = JSON.parse(JSON.stringify(song_list[i])); //T__T やったああ
+                    song_info.series_info = series_info 
+                    songArray.push(song_info)
+                } else { songArray.push(song_list[i]) } 
+                count ++; if (count===song_list.length) {
+                    res.status(200).send(songArray)
+                }
             }
-        }
+        } catch (err) {
+            console.log('Error: ', err.message);
+            res.status(200).send(song_list)
+        }   
     } else {
         res.status(200).send(song_list)
     }
