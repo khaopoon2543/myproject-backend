@@ -252,11 +252,11 @@ app.get('/', async function(req, res) {
         } else if (filter==='show' && level) {
             console.log(level)
             const song_list = await Songs.aggregate( filterLevels(level) ).select(select)
-            findSeries(song_list, res)
+            res.status(200).send(song_list)
         } else {
             console.log(filter)
             const song_list = await Songs.find( filterAll(searchTerm) ).select(select)
-            findSeries(song_list, res)
+            res.status(200).send(song_list)
         }
         
     } catch (err) {
