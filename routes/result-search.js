@@ -70,13 +70,12 @@ function filterArtist(searchTerm) {
             {singer: { $regex : searchTerm, $options: 'i'}}
         ]       
     }}
-function filterArtistId(searchTerm) {
+function filterArtistId(searchTerm, subArtists) {
     return {
-        $or: [ 
-            {artist: searchTerm },
-            {artist_id: searchTerm },
-            {singer: searchTerm }
-        ]       
+        $and:[
+                {artist: subArtists},
+                {artist_id: searchTerm}
+            ]
     }}
 function filterLyric(searchTerm) {
     return [{ 
@@ -217,9 +216,9 @@ app.get('/', async function(req, res) {
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
             console.log(filter)
-            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).select(select)
+            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).sort({"name": 1}).select(select)
             if (song_list.length==0) {
-                const song_list = await Songs.find( spotifyArtists(searchArtist) ).select(select)
+                const song_list = await Songs.find( spotifyArtists(searchArtist) ).sort({"name": 1}).select(select)
                 findSeries(song_list, res)
             } else {
                 findSeries(song_list, res)
@@ -227,17 +226,17 @@ app.get('/', async function(req, res) {
 
         } else if (filter==='song' && searchTerm) {
             console.log(filter)
-            const song_list = await Songs.find( filterSong(searchTerm) ).select(select)
+            const song_list = await Songs.find( filterSong(searchTerm) ).sort({"name": 1}).select(select)
             findSeries(song_list, res)
         
         } else if (filter==='artist' && subArtists) {
             console.log(filter, subArtists)
-            const song_list = await Songs.find(filterArtistId(searchTerm)).select(select)
+            const song_list = await Songs.find(filterArtistId(searchTerm,subArtists)).sort({"name": 1}).select(select)
             findSeries(song_list, res)
                                    
         } else if (filter==='artist' && !subArtists && searchTerm) {
             console.log(filter)
-            const song_list = await Songs.find( filterArtist(searchTerm) ).select(select)
+            const song_list = await Songs.find( filterArtist(searchTerm) ).sort({"name": 1}).select(select)
             findSeries(song_list, res)
         
         } else if (filter==='series' && searchTerm) {
