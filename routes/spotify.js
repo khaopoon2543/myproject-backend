@@ -28,7 +28,7 @@ app.get('/callback', async (req,res) => {
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
     
-    res.redirect('http://localhost:3000/home'); //
+    res.redirect(`${process.env.FRONTEND_URL}/home`); //
   } catch(err) {
     res.redirect('/#/error/invalid token');
   }
