@@ -5,10 +5,10 @@ const songsSchema = new Schema({
   name: String,
   lyric: String,
   readability_score: Number,
+  song_id: String,
   artist: String,
   artist_id: String,
-  song_id: String,
-  singer: String,
+  singers: [{id: String, name: String}],
   series: {id:String, theme:String, name: String} // {id, theme} || {name}
 },
   { collection : 'songs' }
