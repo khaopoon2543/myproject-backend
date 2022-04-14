@@ -31,15 +31,15 @@ const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
 const seriesRouter = require('./routes/series');
 
-app.use('/', spotifyRouter);
-app.use('/result', resultSearchRouter);
-app.use('/dict', dictRouter);
-app.use('/artists', artistsRouter);
-app.use('/series', seriesRouter);
+app.use('backend/', spotifyRouter);
+app.use('backend/result', resultSearchRouter);
+app.use('backend/dict', dictRouter);
+app.use('backend/artists', artistsRouter);
+app.use('backend/series', seriesRouter);
 
-app.get('/', (req, res) => {
-    res.send('APP IS RUNNING')
-});
+//app.get('/', (req, res) => {
+    //res.send('APP IS RUNNING')
+//});
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(`${__dirname}/./build`));
