@@ -250,7 +250,7 @@ app.get('/', async function(req, res) {
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
             console.log(filter)
-            const song_list = await Songs.findOne( spotifyAll(searchArtist,searchTerm) ).sort({"name": 1}).select(select)
+            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).sort({"name": 1}).select(select)
             if (song_list.length>0) {
                 findSeries(song_list, res)
             } else {
