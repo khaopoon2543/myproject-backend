@@ -1,19 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.ba85701c.css",
-    "main.js": "/static/js/main.0704caf5.js",
+    "main.css": "/static/css/main.33271358.css",
+    "main.js": "/static/js/main.98b72960.js",
     "static/js/787.cda612ba.chunk.js": "/static/js/787.cda612ba.chunk.js",
-    "static/media/pien.png": "/static/media/pien.f6af5d8eb4f3dc5f9c22.png",
-    "static/media/Spotify_Icon_RGB_Green.png": "/static/media/Spotify_Icon_RGB_Green.cd66b8f63f6566194c7e.png",
-    "static/media/Spotify_Icon_RGB_Black.png": "/static/media/Spotify_Icon_RGB_Black.0e932c0a97b299edcdc9.png",
-    "static/media/Spotify_Icon_RGB_White.png": "/static/media/Spotify_Icon_RGB_White.ecd5405176643e26f9f8.png",
+    "static/media/pien_girl.png": "/static/media/pien_girl.cf76b8b4da7ba7cc5ef4.png",
+    "static/media/pien_man.png": "/static/media/pien_man.ee206d83b90d63e8c25b.png",
     "index.html": "/index.html",
-    "main.ba85701c.css.map": "/static/css/main.ba85701c.css.map",
-    "main.0704caf5.js.map": "/static/js/main.0704caf5.js.map",
+    "main.33271358.css.map": "/static/css/main.33271358.css.map",
+    "main.98b72960.js.map": "/static/js/main.98b72960.js.map",
     "787.cda612ba.chunk.js.map": "/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ba85701c.css",
-    "static/js/main.0704caf5.js"
+    "static/css/main.33271358.css",
+    "static/js/main.98b72960.js"
   ]
 }
