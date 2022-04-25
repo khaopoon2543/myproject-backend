@@ -11,7 +11,8 @@ function spotifyAll(searchArtist,searchTerm) {
                     {$or: [ 
                         {artist: artist },
                         {artist_id: artist },
-                        {singer: artist }
+                        {singers: { $elemMatch: { id: artist } } },
+                        {singers: { $elemMatch: { name: artist } } }
                     ]},
                     {$or: [ 
                         {name: search },
@@ -36,6 +37,24 @@ function spotifyAllRegex(searchArtist,searchTerm) {
                         {name: search },
                         {song_id: search }
                     ]}
+                ]
+            }
+    }
+function spotifySongs(searchTerm) { //search song only
+    const search = searchTerm.toLowerCase()
+    return {  $or: [ //filter match one (and only)
+                    {name: search },
+                    {song_id: search }
+                ]
+            }
+    }
+function spotifySongsRegex(searchTerm) { //search song only
+    const search = searchTerm.toLowerCase()
+    return {  $or: [ 
+                    {name: { $regex : search, $options: 'i' } },
+                    {song_id: { $regex : search, $options: 'i' } },
+                    {name: search },
+                    {song_id: search }
                 ]
             }
     }
@@ -66,15 +85,6 @@ function spotifyArtistsRegex(searchArtist) {
 
 
 //(default) from SearchForm ----------------------------------------------------------------
-function filterAll(searchTerm) {
-    return {
-        $or: [ 
-            {artist: { $regex : searchTerm, $options: 'i' } },
-            {artist_id: { $regex : searchTerm, $options: 'i' }},
-            {name: { $regex : searchTerm, $options: 'i' } },
-            {song_id: { $regex : searchTerm, $options: 'i' }}
-        ]       
-    }}
 function filterSong(searchTerm) {
     return {
         $or: [ 
@@ -138,7 +148,8 @@ function filterLevels(level) { //songs
         },
         { $match: 
             {readability_score: { $gt: min_score, $lt: max_score }}
-        }
+        },
+        { $limit: 500 } 
     ]}
 
 //find series ----------------------------------------------------------------  
@@ -236,6 +247,7 @@ async function findSeries(song_list, res) {
 }
 
 const select = { "lyric": 0 }
+const limit = 5
 
 app.get('/', async function(req, res) {
     try {
@@ -250,20 +262,31 @@ app.get('/', async function(req, res) {
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
             console.log(filter)
-            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).sort({"name": 1}).select(select)
+            const song_list = await Songs.find( spotifyAll(searchArtist,searchTerm) ).sort({"name": 1}).select(select).limit(limit)
             if (song_list.length>0) {
                 findSeries(song_list, res)
             } else {
-                const song_list = await Songs.find( spotifyAllRegex(searchArtist,searchTerm) ).sort({"name": 1}).select(select)
+                const song_list = await Songs.find( spotifyAllRegex(searchArtist,searchTerm) ).sort({"name": 1}).select(select).limit(limit)
                 if (song_list.length>0) {
                     findSeries(song_list, res)
                 } else {
-                    const song_list = await Songs.find( spotifyArtists(searchArtist) ).sort({"name": 1}).select(select)
+                    const song_list = await Songs.find( spotifyArtists(searchArtist) ).sort({"name": 1}).select(select).limit(limit)
                     if (song_list.length>0) {
                         findSeries(song_list, res)
                     } else {
-                        const song_list = await Songs.find( spotifyArtistsRegex(searchArtist) ).sort({"name": 1}).select(select)
-                        findSeries(song_list, res)
+                        const song_list = await Songs.find( spotifyArtistsRegex(searchArtist) ).sort({"name": 1}).select(select).limit(limit)
+                      //add search only song  
+                      if (song_list.length>0) {
+                            findSeries(song_list, res)
+                        } else {
+                            const song_list = await Songs.find( spotifySongs(searchTerm) ).sort({"name": 1}).select(select).limit(limit)
+                            if (song_list.length>0) {
+                                findSeries(song_list, res)
+                            } else {
+                                const song_list = await Songs.find( spotifySongsRegex(searchTerm) ).sort({"name": 1}).select(select).limit(limit)
+                                findSeries(song_list, res)
+                            }
+                        }
                     }
                 }
             }
@@ -301,11 +324,7 @@ app.get('/', async function(req, res) {
             console.log(level)
             const song_list = await Songs.aggregate( filterLevels(level) )
             res.status(200).send(song_list)
-        } else {
-            console.log(filter)
-            const song_list = await Songs.find( filterAll(searchTerm) )
-            res.status(200).send(song_list)
-        }
+        } 
         
     } catch (err) {
         res.status(400).send(err)

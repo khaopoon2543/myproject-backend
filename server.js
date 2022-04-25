@@ -31,11 +31,11 @@ const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
 const seriesRouter = require('./routes/series');
 
-app.use('/backend/', spotifyRouter);
-app.use('/backend/result', resultSearchRouter);
-app.use('/backend/dict', dictRouter);
-app.use('/backend/artists', artistsRouter);
-app.use('/backend/series', seriesRouter);
+app.use('/api/', spotifyRouter);
+app.use('/api/result', resultSearchRouter);
+app.use('/api/dict', dictRouter);
+app.use('/api/artists', artistsRouter);
+app.use('/api/series', seriesRouter);
 
 //app.get('/', (req, res) => {
     //res.send('APP IS RUNNING')
