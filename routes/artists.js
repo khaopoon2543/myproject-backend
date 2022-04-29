@@ -13,15 +13,32 @@ function filterArtists(searchTerm) {
         ]       
     }
 }
+function filterArtistsOne(searchTerm) {
+    return {
+        $or: [ 
+            {artist_id: searchTerm},
+            {name: searchTerm}
+        ]       
+    }
+}
 
 app.get('/', async function(req, res) {
     try {
         let alphabet = req.query.alphabet;
         let searchTerm = req.query.searchTerm;
+        let spotify = req.query.spotify;
 
         if (alphabet) {
             const artists_list = await Artists.find( filterAlpha(alphabet) )
             res.status(200).send(artists_list)
+        } else if (spotify && searchTerm) {
+            const artists_list = await Artists.find( filterArtistsOne(searchTerm) )
+            if (artists_list.length>0) {
+                res.status(200).send(artists_list)
+            } else {
+                const artists_list = await Artists.find( filterArtists(searchTerm) )
+                res.status(200).send(artists_list)
+            }
         } else if (searchTerm) {
             const artists_list = await Artists.find( filterArtists(searchTerm) )
             res.status(200).send(artists_list)

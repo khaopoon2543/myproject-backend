@@ -70,8 +70,66 @@ function CheckV5(result) {
     }
 }
 
+function EditTypeProblems(dic_form, SearchType) {
+    if (dic_form==='ごらん') {
+        return { $in: ['int'] }
+    } else if (dic_form==='ごらん') {
+        return { $in: ['int'] }
+    } else {
+        return SearchType
+    }
+}
+
+function EditWordProblems(dic_form, SearchType, read_form) {
+    if (dic_form==='有象'||dic_form==='無象') {
+        return {$and:
+            [
+                {Kanji: { $regex : dic_form, $options: 'i' }},
+                {Type: SearchType}
+            ] 
+        }
+    } else {
+        return {$and:
+            [
+                {Kanji: dic_form},
+                {Yomikata: read_form},                 
+                {Type: SearchType}
+            ] 
+        }
+    }
+}
+
+function SearchOr(dic_form, SearchType, read_form, toKana_dic_form) {
+    return {
+        $and: [
+            {$or: [
+                {Kanji: dic_form},
+                {Yomikata: dic_form}, 
+                {Yomikata: read_form},
+                {Yomikata: toKana_dic_form}
+            ]}, 
+            {Type: SearchType}
+        ] 
+    }
+}
+function SearchOrWord(word, dic_form, read_form, toKana_dic_form) {
+    return {
+        $and: [
+            {$or: [
+                {Kanji: word},
+                {Kanji: dic_form}, 
+            ]},
+            {$or: [
+                {Yomikata: read_form}, 
+                {Yomikata: toKana_dic_form},
+            ]} 
+        ] 
+    }
+}
+
 app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, read_form : read_form, poses : poses }
     try {
+        let word = req.query.word;
         let dic_form = req.query.dic_form;
         let poses = req.query.poses;
         let read_form = req.query.read_form;
@@ -80,32 +138,21 @@ app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, re
         }
         let toKana_dic_form = wanakana.toHiragana(dic_form);
 
-        const result = ResultPOS(poses)
-        const SearchType = CheckV5(result)
+        const result_poses = ResultPOS(poses)
+        const result_verb = CheckV5(result_poses)
+        const SearchType = EditTypeProblems(dic_form, result_verb)
 
-        const dict_list = await JTdic.find({
-            $and: [
-                {Kanji: dic_form},
-                {Yomikata: read_form},                 
-                {Type: SearchType}
-            ] 
-        })
-
+        const dict_list = await JTdic.find( EditWordProblems(dic_form, SearchType, read_form) )
         if (dict_list.length > 0) {
             res.status(200).send(dict_list) 
         } else {
-            const dict_list = await JTdic.find({
-                $and: [
-                    {$or: [
-                        {Kanji: dic_form},
-                        {Yomikata: dic_form}, 
-                        {Yomikata: read_form},
-                        {Yomikata: toKana_dic_form}
-                    ]}, 
-                    {Type: SearchType}
-                ] 
-            })
-            res.status(200).send(dict_list)  
+            const dict_list = await JTdic.find( SearchOr(dic_form, SearchType, read_form, toKana_dic_form) )
+            if (dict_list.length > 0) {
+                res.status(200).send(dict_list) 
+            } else {
+                const dict_list = await JTdic.find( SearchOrWord(word, dic_form, read_form, toKana_dic_form) )
+                res.status(200).send(dict_list)  
+            }
         }
        
     } catch (err) {
