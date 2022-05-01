@@ -21,10 +21,10 @@ app.get('/', async function(req, res) {
         
         if (alphabet) {
             const series_list = await Series.find( filterAlpha(alphabet) )
-            res.status(200).send(series_list)
+            return res.status(200).send(series_list)
         } else if (searchTerm) {
             const series_list = await Series.find( filterSeries(searchTerm) )
-            res.status(200).send(series_list)
+            return res.status(200).send(series_list)
         }
 
     } catch (err) {

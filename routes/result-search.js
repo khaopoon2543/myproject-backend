@@ -234,15 +234,15 @@ async function findSeries(song_list, res) {
                     songArray.push(song_info)
                 } else { songArray.push(song_list[i]) } 
                 count ++; if (count===song_list.length) {
-                    res.status(200).send(songArray)
+                    return res.status(200).send(songArray)
                 }
             }
         } catch (err) {
             console.log('Error: ', err.message);
-            res.status(200).send(song_list)
+            return res.status(200).send(song_list)
         }   
     } else {
-        res.status(200).send(song_list)
+        return res.status(200).send(song_list)
     }
 }
 
@@ -311,9 +311,9 @@ app.get('/', async function(req, res) {
             const song_list = await Songs.aggregate( filterSeriesId(searchTerm) )
             if (song_list.length==0) {
                 const song_list = await Series.aggregate( filterSeriesName(searchTerm) )
-                res.status(200).send(song_list)
+                return res.status(200).send(song_list)
             } else {
-                res.status(200).send(song_list)
+                return res.status(200).send(song_list)
             }
         
         } else if (filter==='lyric' && searchTerm) {
@@ -323,7 +323,7 @@ app.get('/', async function(req, res) {
         } else if (filter==='show' && level) {
             console.log(level)
             const song_list = await Songs.aggregate( filterLevels(level) )
-            res.status(200).send(song_list)
+            findSeries(song_list, res)
         } 
         
     } catch (err) {

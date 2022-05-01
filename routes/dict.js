@@ -38,7 +38,9 @@ function ResultPOS(poses) {
     if (poses[0] === '動詞') {
         return [VerbEng(poses)]
     }else if (poses[0] === '名詞' && poses[2] === '副詞可能') {
-        return ['n-t','n-adv','n']
+        return ['n-t','n-adv','n','adj-no']
+    }else if (poses[0] === '名詞' && poses[2] === '形状詞可能') {
+        return ['n','adj-na']
     }else if (poses[0] === '名詞' && poses[1] === '数詞') {
         return ['n','num']
     }else if (poses[0] === '形容詞' && poses[1] === '非自立可能' && ['連体形'].includes(poses[5].split('-')[0])) {
@@ -80,44 +82,44 @@ function EditTypeProblems(dic_form, SearchType) {
     }
 }
 
+const problemWords = ['とりとめ', '有象', '無象']
+
 function EditWordProblems(dic_form, SearchType, read_form) {
-    if (dic_form==='有象'||dic_form==='無象') {
-        return {$and:
+    if (problemWords.includes(dic_form)) {
+        return {$or:
             [
                 {Kanji: { $regex : dic_form, $options: 'i' }},
-                {Type: SearchType}
+                {Yomikata: { $regex : dic_form, $options: 'i' }},
             ] 
         }
-    } else {
+    } else { //dict&read มีเหมือนกันส่วนใหญ่ เลยให้เชคส่วนใหญ่ก่อน แต่ก็มีต่างกันด้วย ก็จะเข้า route ต่อไปเล้ยย  
         return {$and:
             [
                 {Kanji: dic_form},
-                {Yomikata: read_form},                 
+                {Yomikata: read_form},            
                 {Type: SearchType}
             ] 
         }
     }
 }
 
-function SearchOr(dic_form, SearchType, read_form, toKana_dic_form) {
+function SearchDictType(dic_form, SearchType, toKana_dic_form) {
     return {
         $and: [
             {$or: [
                 {Kanji: dic_form},
-                {Yomikata: dic_form}, 
-                {Yomikata: read_form},
                 {Yomikata: toKana_dic_form}
             ]}, 
             {Type: SearchType}
         ] 
     }
 }
-function SearchOrWord(word, dic_form, read_form, toKana_dic_form) {
+function SearchAllWithOutType(word, dic_form, read_form, toKana_dic_form) {
     return {
         $and: [
             {$or: [
                 {Kanji: word},
-                {Kanji: dic_form}, 
+                {Kanji: dic_form},            
             ]},
             {$or: [
                 {Yomikata: read_form}, 
@@ -134,7 +136,7 @@ app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, re
         let poses = req.query.poses;
         let read_form = req.query.read_form;
         if (wanakana.isJapanese(dic_form)!==true) {
-            res.status(200).send(null)  
+            return res.status(200).send(null)  
         }
         let toKana_dic_form = wanakana.toHiragana(dic_form);
 
@@ -144,18 +146,28 @@ app.get('/', async function(req, res) { //{ word : word, dic_form : dic_form, re
 
         const dict_list = await JTdic.find( EditWordProblems(dic_form, SearchType, read_form) )
         if (dict_list.length > 0) {
-            res.status(200).send(dict_list) 
+            return res.status(200).send(dict_list) 
         } else {
-            const dict_list = await JTdic.find( SearchOr(dic_form, SearchType, read_form, toKana_dic_form) )
+            const dict_list = await JTdic.find( SearchDictType(dic_form, SearchType, toKana_dic_form) )
             if (dict_list.length > 0) {
-                res.status(200).send(dict_list) 
+                //console.log('SearchDictType')
+                return res.status(200).send(dict_list) 
             } else {
-                const dict_list = await JTdic.find( SearchOrWord(word, dic_form, read_form, toKana_dic_form) )
-                res.status(200).send(dict_list)  
+                const dict_list = await JTdic.find( SearchAllWithOutType(word, dic_form, read_form, toKana_dic_form) )
+                if (dict_list.length > 0) {
+                    //console.log('SearchAllWithOutType', dict_list)
+                    return res.status(200).send(dict_list) 
+                } else {
+                    //console.log('ERROR--------------', dict_list)
+                    return res.status(200).send(dict_list) 
+
+                } 
             }
         }
        
     } catch (err) {
+        console.error("Something went wrong")
+        console.error(err)
         res.status(400).send(err)
     }   
 });

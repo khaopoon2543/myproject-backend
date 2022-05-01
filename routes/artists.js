@@ -30,18 +30,18 @@ app.get('/', async function(req, res) {
 
         if (alphabet) {
             const artists_list = await Artists.find( filterAlpha(alphabet) )
-            res.status(200).send(artists_list)
+            return res.status(200).send(artists_list)
         } else if (spotify && searchTerm) {
             const artists_list = await Artists.find( filterArtistsOne(searchTerm) )
             if (artists_list.length>0) {
-                res.status(200).send(artists_list)
+                return res.status(200).send(artists_list)
             } else {
                 const artists_list = await Artists.find( filterArtists(searchTerm) )
-                res.status(200).send(artists_list)
+                return res.status(200).send(artists_list)
             }
         } else if (searchTerm) {
             const artists_list = await Artists.find( filterArtists(searchTerm) )
-            res.status(200).send(artists_list)
+            return res.status(200).send(artists_list)
         }
                   
     } catch (err) {
