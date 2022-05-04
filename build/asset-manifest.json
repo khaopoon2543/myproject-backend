@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.aa2fd1bc.css",
-    "main.js": "/static/js/main.ae9ba6f5.js",
+    "main.css": "/static/css/main.60e5fb2b.css",
+    "main.js": "/static/js/main.37515260.js",
     "static/js/787.cda612ba.chunk.js": "/static/js/787.cda612ba.chunk.js",
     "static/media/pien_girl.png": "/static/media/pien_girl.cf76b8b4da7ba7cc5ef4.png",
     "static/media/pien_man.png": "/static/media/pien_man.ee206d83b90d63e8c25b.png",
     "index.html": "/index.html",
-    "main.aa2fd1bc.css.map": "/static/css/main.aa2fd1bc.css.map",
-    "main.ae9ba6f5.js.map": "/static/js/main.ae9ba6f5.js.map",
+    "main.60e5fb2b.css.map": "/static/css/main.60e5fb2b.css.map",
+    "main.37515260.js.map": "/static/js/main.37515260.js.map",
     "787.cda612ba.chunk.js.map": "/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.aa2fd1bc.css",
-    "static/js/main.ae9ba6f5.js"
+    "static/css/main.60e5fb2b.css",
+    "static/js/main.37515260.js"
   ]
 }
