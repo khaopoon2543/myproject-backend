@@ -257,8 +257,7 @@ app.get('/', async function(req, res) {
         let level = req.query.level;
         let subArtists = req.query.subArtists;
         
-        console.log('Connected'+ searchTerm + searchArtist)
-        console.log(filter)
+        console.log('Connected'+ searchTerm)
 
         if (filter==='spotify' && searchTerm && searchArtist) { //spotify
             console.log(filter)
@@ -303,7 +302,6 @@ app.get('/', async function(req, res) {
         } else if (filter==='artist' && !subArtists && searchTerm) {
             console.log(filter)
             const song_list = await Songs.find( filterArtist(searchTerm) ).sort({"name": 1}).select(select)
-            console.log(song_list)
             findSeries(song_list, res)
         
         } else if (filter==='series' && searchTerm) {
@@ -330,5 +328,36 @@ app.get('/', async function(req, res) {
         res.status(400).send(err)
     }   
 });
+
+// ------------- SEARCH ALL ------------- //
+
+app.get('/song', async function(req, res) {
+    try {
+        let searchTerm = req.query.searchTerm;           
+        console.log('Connected Search All Songs'+ searchTerm )
+
+        if (searchTerm) {
+            const song_list = await Songs.find( filterSong(searchTerm) ).sort({"name": 1}).select(select)
+            findSeries(song_list, res)
+        } 
+    } catch (err) {
+        res.status(400).send(err)
+    }   
+});
+app.get('/lyric', async function(req, res) {
+    try {
+        let searchTerm = req.query.searchTerm;           
+        console.log('Connected Search All Lyric'+ searchTerm )
+
+        if (searchTerm) {
+            const song_list = await Songs.find( filterLyric(searchTerm) )
+            findSeries(song_list, res)
+        } 
+    } catch (err) {
+        res.status(400).send(err)
+    }   
+});
+
+
 
 module.exports = app;
