@@ -21,12 +21,16 @@ function filterArtistsOne(searchTerm) {
         ]       
     }
 }
+function filterArtistsId(searchTerm) {
+    return {artist_id: searchTerm}
+}
 
 app.get('/', async function(req, res) {
     try {
         let alphabet = req.query.alphabet;
         let searchTerm = req.query.searchTerm;
         let spotify = req.query.spotify;
+        let subArtists = req.query.subArtists;
 
         if (alphabet) {
             const artists_list = await Artists.find( filterAlpha(alphabet) )
@@ -39,6 +43,9 @@ app.get('/', async function(req, res) {
                 const artists_list = await Artists.find( filterArtists(searchTerm) )
                 return res.status(200).send(artists_list)
             }
+        } else if (subArtists && searchTerm) {
+            const artists_list = await Artists.findOne( filterArtistsId(searchTerm) )
+            return res.status(200).send(artists_list)
         } else if (searchTerm) {
             const artists_list = await Artists.find( filterArtists(searchTerm) )
             return res.status(200).send(artists_list)

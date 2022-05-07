@@ -94,6 +94,13 @@ function filterSong(searchTerm) {
             {song_id: searchTerm }
         ]       
     }}
+function filterSongAndArtistId(songId, artistId) {
+    return {
+        $and: [ 
+            {song_id: songId },
+            {artist_id: artistId }
+        ]       
+    }}
 function filterArtist(searchTerm) {
     return {
         $or: [ 
@@ -107,17 +114,11 @@ function filterArtist(searchTerm) {
             {singers: { $elemMatch: { name: { $regex : searchTerm, $options: 'i'} } } }
         ]       
     }}
-function filterArtistId(searchTerm, subArtists) {
+function filterArtistId(searchTerm) {
     return {
         $or:[
-            {$and: [
-                {artist: subArtists},
-                {artist_id: searchTerm}
-            ]},
-            {$and: [
-                {singers: { $elemMatch: { name: subArtists } } },
-                {singers: { $elemMatch: { id: searchTerm } } }
-            ]}
+            {artist_id: searchTerm},
+            {singers: { $elemMatch: { id: searchTerm } } }
         ]
     }}
 function filterLyric(searchTerm) {
@@ -297,7 +298,7 @@ app.get('/', async function(req, res) {
         
         } else if (filter==='artist' && subArtists) {
             console.log(filter, subArtists)
-            const song_list = await Songs.find( filterArtistId(searchTerm,subArtists) ).sort({"name": 1}).select(select)
+            const song_list = await Songs.find( filterArtistId(searchTerm) ).sort({"name": 1}).select(select)
             findSeries(song_list, res)                        
         } else if (filter==='artist' && !subArtists && searchTerm) {
             console.log(filter)
@@ -358,6 +359,21 @@ app.get('/lyric', async function(req, res) {
     }   
 });
 
+// for info of song on Lyric,js
+app.get('/info', async function(req, res) {
+    try {
+        let songId = req.query.songId;           
+        let artistId = req.query.artistId;           
+        console.log('Connected Search Songs&Artist'+ songId )
+
+        if (songId && artistId) {
+            const song_list = await Songs.find( filterSongAndArtistId(songId, artistId) ).select(select)
+            findSeries(song_list, res)
+        } 
+    } catch (err) {
+        res.status(400).send(err)
+    }   
+});
 
 
 module.exports = app;
