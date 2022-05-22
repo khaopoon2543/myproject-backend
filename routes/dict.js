@@ -5,32 +5,36 @@ const wanakana = require('wanakana');
 
 function PosToEng(pos) {
     if (pos === '名詞') {
-        const pos = 'n'; return pos
+        return 'n'
     }else if (pos === '形容詞') {
-        const pos = 'adj-i'; return pos
+        return 'adj-i'
     }else if (pos === '形状詞') { //形容動詞
-        const pos = 'adj-na'; return pos
+        return 'adj-na'
     }else if (pos === '副詞') {
-        const pos = 'adv'; return pos
+        return 'adv'
     }else if (pos === '接続詞') {
-        const pos = 'conj'; return pos
+        return 'conj'
     }else if (pos === '感動詞') {
-        const pos = 'int'; return pos
+        return 'int'
+    }else if (pos === '代名詞') {
+        return 'pn','adj-no'
     }
 }
 
 function VerbEng(poses)  {
     let pos4 = poses[4].split('-')
     if (['上一段','下一段'].includes(pos4[0])) {
-        const pos = 'v1'; return pos
+        return 'v1'
     }else if (pos4[0] === '五段') {
-        const pos = 'v5'; return pos
+        return 'v5'
     }else if (pos4[0] === 'カ行変格') {
-        const pos = 'vk'; return pos
+        return 'vk'
     }else if (pos4[0] === 'サ行変格') {
-        return 'vs','vs-s';
+        return 'vs','vs-s','v';
     }else if (pos4[0] === 'ザ行変格') {
-        const pos = 'vz'; return pos
+        return 'vz'
+    } else {
+        return 'v'
     }
 }
 
@@ -49,13 +53,18 @@ function ResultPOS(poses) {
         return ['aux-adj']
     }else if (poses[0] === '形状詞' && poses[1] === '助動詞語幹') {
         return ['aux-adj'] 
-    //}else if (poses[0] === '接頭辞') {
-        //return ['pref', 'n-pref'] //, 'n-pref'
-    //}else if (poses[0] === '接尾辞') {
-        //return ['suf', 'n-suf'] //, 'n-suf'
+
+    }else if (poses[0] === '接頭辞') {
+        return ['pref', 'n-pref'] //, 'n-pref'
+    }else if (poses[0] === '接尾辞') {
+        return ['suf', 'n-suf'] //, 'n-suf'
+        
     }else if (poses[0] === '連体詞') {
         return ['adj-pn','adj-f'];
-    } 
+    
+    }else if (poses[0] === '名詞' && poses[1] === '助動詞語幹') { //そう
+        return ['aux','adv','n'];
+    }
         return [PosToEng(poses[0])]
     
 }
@@ -72,17 +81,16 @@ function CheckV5(result) {
     }
 }
 
+const problemTypeWords = ['ごらん', 'そうさ']
 function EditTypeProblems(dic_form, SearchType) {
-    if (dic_form==='ごらん') {
-        return { $in: ['int'] }
-    } else if (dic_form==='ごらん') {
+    if (problemTypeWords.includes(dic_form)) {
         return { $in: ['int'] }
     } else {
         return SearchType
     }
 }
 
-const problemWords = ['とりとめ', '有象', '無象']
+const problemWords = ['とりとめ', '有象', '無象', '置き去る']
 
 function EditWordProblems(dic_form, SearchType, read_form) {
     if (problemWords.includes(dic_form)) {

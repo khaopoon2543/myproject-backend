@@ -1,0 +1,13 @@
+click==8.0.4
+colorama==0.4.4
+dnspython==2.2.1
+gunicorn==20.1.0
+itsdangerous==2.1.1
+Jinja2==3.0.3
+MarkupSafe==2.1.1
+pymongo==4.0.2
+python-dotenv==0.19.2
+six==1.16.0
+SudachiDict-core==20211220
+SudachiPy==0.6.3
+Werkzeug==2.0.3

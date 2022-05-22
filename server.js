@@ -30,12 +30,14 @@ const resultSearchRouter = require('./routes/result-search');
 const dictRouter = require('./routes/dict');
 const artistsRouter = require('./routes/artists');
 const seriesRouter = require('./routes/series');
+const lyricRouter = require('./routes/python');
 
 app.use('/api/', spotifyRouter);
 app.use('/api/result', resultSearchRouter);
 app.use('/api/dict', dictRouter);
 app.use('/api/artists', artistsRouter);
 app.use('/api/series', seriesRouter);
+app.use('/api/lyric', lyricRouter);
 
 //app.get('/', (req, res) => {
     //res.send('APP IS RUNNING')
