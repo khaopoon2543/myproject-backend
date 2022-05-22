@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const JTdic = require('../models/jtdic');
-const wanakana = require('wanakana');
+const wanakana = require('wanakana'); 
 
 function PosToEng(pos) {
     if (pos === '名詞') {
