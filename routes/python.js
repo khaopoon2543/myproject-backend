@@ -53,4 +53,42 @@ app.get("/:trackArtist/:trackId", async (req, res) => {
 
 });
 
+
+//add function input lyrics by user 
+app.get("/", async (req, res) => {
+    try {
+    const lyric = req.query.lyric;
+
+    const pythonProcess = spawn('python', ['./routes/script.py', lyric]);
+ 
+    const stdout = [] 
+    const stderr = []
+
+    //get data from python  
+    pythonProcess.stdout.on('data', (data) => {
+        stdout.push(data.toString()); //change buffer --> array (string)
+    });  
+     
+    //error
+    pythonProcess.stderr.on('data', (data) => {
+        stderr.push(data.toString()) 
+    });
+
+    //close
+    pythonProcess.on('close', (code) => {
+        console.log('child process exited with code ', code);
+
+        if (code !== 0) { return reject(stderr.join('')) } //return ERROR
+
+        const json_token_list = JSON.parse(stdout.join(''))
+        const dict_data = { "tokenized_list": json_token_list }
+        return res.send(dict_data) 
+    });
+
+    } catch (err) {
+        res.status(400).send(err)
+    }
+
+});
+
 module.exports = app;
