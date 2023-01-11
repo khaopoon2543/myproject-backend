@@ -40,7 +40,10 @@ app.get("/:trackArtist/:trackId", async (req, res) => {
     pythonProcess.on('close', (code) => {
         console.log('child process exited with code ', code);
 
-        if (code !== 0) { return reject(stderr.join('')) } //return ERROR
+        if (code !== 0) {  
+            console.log(stderr.join(''))
+            return 'error ja' 
+        } //return ERROR
 
         const json_token_list = JSON.parse(stdout.join(''))
         const dict_data = { "title": title_info, "tokenized_list": json_token_list }
@@ -78,7 +81,10 @@ app.get("/", async (req, res) => {
     pythonProcess.on('close', (code) => {
         console.log('child process exited with code ', code);
 
-        if (code !== 0) { return reject(stderr.join('')) } //return ERROR
+        if (code !== 0) { 
+            console.log(stderr.join(''))
+            return 'error ja'
+        } //return ERROR
 
         const json_token_list = JSON.parse(stdout.join(''))
         const dict_data = { "tokenized_list": json_token_list }
