@@ -188,7 +188,13 @@ function filterSeriesId(searchTerm) { //songs (by series.id||series.name in 'son
                 song_id: "$song_id",
                 singers: "$singers",
                 series: "$series",
-                series_info: { name:"$series_info.name", type:"$series_info.type" }
+                series_info: { name:"$series_info.name", type:"$series_info.type" },
+                //NEW KEY
+                pic: "$pic",
+                reading: "$reading",
+                release: "$release",
+                mv: "$mv"
+
             }
         }
     ]}
@@ -216,7 +222,13 @@ function filterSeriesName(searchTerm) { //series (by name in 'series')
                 song_id: "$songs_info.song_id",
                 singers: "$songs_info.singers",
                 series: "$songs_info.series",
-                series_info: { name:"$name", type:"$type" }
+                series_info: { name:"$name", type:"$type" },
+                //NEW KEY
+                pic: "$pic",
+                reading: "$reading",
+                release: "$release",
+                mv: "$mv"
+                
             }
         }
     ]}
